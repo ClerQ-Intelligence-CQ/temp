@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products · ClerQ Intelligence</title>
+  <meta name="description" content="Interactive product stalls for Nia CDS, Sema Swahili Engine, Rafiki Triage, and Hakiki Verification. Clinical AI built for East African healthcare frontline.">
+  <link rel="canonical" href="https://clerqintelligence.site/product/">
+  <meta property="og:title" content="Products · ClerQ Intelligence">
+  <meta property="og:description" content="Offline-capable clinical decision support and localized medical speech processing built for frontline African clinicians.">
+  <meta property="og:type" content="website">
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=3">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png?v=3">
+  <link rel="shortcut icon" href="/favicon.ico?v=3">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="stylesheet" href="/css/main.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <style>
+    .stall-viewport {
+      position: relative;
+      width: 100%;
+      height: 480px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: radial-gradient(circle at center, #FFFFFF 0%, #F8F9FA 70%, #F1F3F5 100%);
+      overflow: hidden;
+      margin-top: var(--space-md);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    }
+    .stall-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .stall-overlay {
+      position: absolute;
+      top: 20px;
+      left: 24px;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .stall-nav {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+      margin-top: var(--space-lg);
+    }
+    .stall-tab {
+      padding: 10px 18px;
+      border: 1px solid var(--line);
+      background: #FFFFFF;
+      border-radius: 6px;
+      font-size: var(--fs-small);
+      font-weight: var(--fw-medium);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all var(--duration-fast) var(--ease-out);
+      white-space: nowrap;
+    }
+    .stall-tab:hover {
+      color: var(--ink);
+      border-color: var(--ink);
+    }
+    .stall-tab.active {
+      background: var(--ink);
+      color: #FFFFFF;
+      border-color: var(--ink);
+      font-weight: var(--fw-semibold);
+    }
+    .action-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-md);
+      margin-top: var(--space-lg);
+    }
+    @media (max-width: 768px) {
+      .action-panel {
+        grid-template-columns: 1fr;
+      }
+      .stall-viewport {
+        height: 380px;
+      }
+    }
+    /* Modal styles */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 10, 10, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-backdrop.open {
+      display: flex;
+    }
+    .modal-box {
+      width: 100%;
+      max-width: 580px;
+      background: #FFFFFF;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 32px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+    .step-pill {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ====== NAVIGATION ====== -->
+  <nav class="nav" id="main-nav" role="navigation" aria-label="Main navigation">
+    <a href="/" class="nav__logo" aria-label="ClerQ Intelligence home">
+      <img src="/assets/logos/cq-monogram.svg" alt="CQ" width="40" height="32">
+    </a>
+    <div class="nav__links" id="nav-links">
+      <a href="/product/" class="nav__link nav__link--active" id="nav-product"><span data-en="Product" data-sw="Bidhaa">Product</span></a>
+      <a href="/research/" class="nav__link" id="nav-research"><span data-en="Research" data-sw="Utafiti">Research</span></a>
+      <a href="/blog/" class="nav__link" id="nav-blog"><span data-en="Dispatches" data-sw="Makala">Dispatches</span></a>
+      <a href="/about/" class="nav__link" id="nav-about"><span data-en="About" data-sw="Kuhusu">About</span></a>
+      <a href="/partners/" class="nav__link" id="nav-partners"><span data-en="Partners" data-sw="Washirika">Partners</span></a>
+      <a href="/contact/" class="nav__link" id="nav-contact"><span data-en="Contact" data-sw="Wasiliana">Contact</span></a>
+      <button class="nav__lang-toggle" id="lang-toggle" aria-label="Switch language">
+        <span class="nav__lang-label" data-en="SW" data-sw="EN">SW</span>
+      </button>
+    </div>
+    <button class="nav__toggle" id="nav-toggle" aria-label="Open menu" aria-expanded="false">
+      <span class="nav__toggle-bar"></span>
+      <span class="nav__toggle-bar"></span>
+      <span class="nav__toggle-bar"></span>
+    </button>
+  </nav>
+
+  <!-- ====== PAGE HEADER ====== -->
+  <header class="page-header" style="background: #FFFFFF; border-bottom: 1px solid var(--line);">
+    <div class="container">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <span style="font-size: var(--fs-small); font-weight: var(--fw-semibold); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted);" data-en="Clinical AI Product Suite" data-sw="Mkusanyiko wa Bidhaa za Kitabibu za AI">
+          Clinical AI Product Suite
+        </span>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #00D09C;"></span>
+          <span style="font-size: 12px; font-weight: 600; color: var(--ink);">Tanzania Clinical Evaluation Active</span>
+        </div>
+      </div>
+      <h1 style="margin-top: 0.5rem;" data-en="Intelligence Built for the Ward, Not the Cloud" data-sw="Akili Bandia Iliyoundwa kwa Ajili ya Wodi, Si ya Wingu">
+        Intelligence Built for the Ward, Not the Cloud
+      </h1>
+      <p style="margin-top: 0.75rem; max-width: 68ch; color: var(--muted);" data-en="Offline-capable, bilingual clinical decision support and medical speech models running entirely on the phones East African practitioners already carry." data-sw="Msaada wa maamuzi ya kitabibu unaofanya kazi bila mtandao na sauti ya Kiswahili, ukifanya kazi kikamilifu kwenye simu za mikononi.">
+        Offline-capable, bilingual clinical decision support and medical speech models running entirely on the phones East African practitioners already carry.
+      </p>
+    </div>
+  </header>
+
+  <!-- ====== 3D WEBGL INTERACTIVE PRODUCT STALL ====== -->
+  <section class="section" style="padding-top: var(--space-md);">
+    <div class="container">
+      <!-- Stall Navigation Switcher -->
+      <div class="stall-nav" id="stall-nav-bar">
+        <button class="stall-tab active" data-product="nia-cds">
+          1. Nia (ClerQ CDS v1.47.2)
+        </button>
+        <button class="stall-tab" data-product="sema-voice">
+          2. Sema Speech & NLP Engine
+        </button>
+        <button class="stall-tab" data-product="rafiki-triage">
+          3. Rafiki Frontline Triage
+        </button>
+        <button class="stall-tab" data-product="hakiki-audit">
+          4. Hakiki Protocol Verification
+        </button>
+      </div>
+
+      <!-- 3D Interactive Viewport -->
+      <div class="stall-viewport">
+        <canvas id="product-stall-canvas" class="stall-canvas"></canvas>
+        <div class="stall-overlay">
+          <span id="stall-badge" style="display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; background: rgba(0, 208, 156, 0.1); border: 1px solid rgba(0, 208, 156, 0.3); color: #008765;">
+            BEDSIDE CLINICAL CDS · TANZANIA STG
+          </span>
+          <h2 id="stall-title" style="font-size: var(--fs-h2); font-weight: var(--fw-bold); color: var(--ink); margin-top: 6px;">
+            Nia: Bedside Clinical Guidance
+          </h2>
+          <p id="stall-model-tag" style="font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin-top: 2px;">
+            ENGINE: Gemma 3 270M Q4_K_M + Whisper ggml-base-q5_1
+          </p>
+        </div>
+      </div>
+
+      <!-- Active Product Stall Specifications & Capabilities -->
+      <div id="stall-details" style="margin-top: var(--space-lg); display: grid; grid-template-columns: 1.2fr 1fr; gap: var(--space-lg); align-items: start;">
+        <div>
+          <h3 id="stall-detail-heading" style="font-size: var(--fs-h2); margin-bottom: 0.75rem;">
+            Engineered for Frontline Bedside Care
+          </h3>
+          <p id="stall-description" style="line-height: 1.8; color: var(--muted); margin-bottom: var(--space-md);">
+            Nia synthesizes free-text English and Swahili patient history into structured clinical differentials without transmitting patient data over the network. Grounded directly in the Tanzania Standard Treatment Guidelines (STG 2026), it delivers sub-200ms guideline lookups, weight-based pediatric dosing tables, and emergency resuscitation algorithms.
+          </p>
+
+          <div id="stall-feature-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm);">
+            <div style="padding: 16px; border: 1px solid var(--line); border-radius: 6px; background: #FFFFFF;">
+              <span style="font-family: var(--font-mono); font-size: 11px; color: #00D09C; font-weight: 600;">01 · OFFLINE REASONING</span>
+              <h4 style="font-size: 14px; margin: 4px 0;">On-Device Gemma 3</h4>
+              <p style="font-size: 12px; color: var(--muted);">Runs locally on budget Android phones (Android 8+) with zero data connection.</p>
+            </div>
+            <div style="padding: 16px; border: 1px solid var(--line); border-radius: 6px; background: #FFFFFF;">
+              <span style="font-family: var(--font-mono); font-size: 11px; color: #00D09C; font-weight: 600;">02 · SWAHILI VOICE</span>
+              <h4 style="font-size: 14px; margin: 4px 0;">Hands-Free Dictation</h4>
+              <p style="font-size: 12px; color: var(--muted);">Embedded Whisper voice loop lets busy practitioners dictate during intensive ward rounds.</p>
+            </div>
+            <div style="padding: 16px; border: 1px solid var(--line); border-radius: 6px; background: #FFFFFF;">
+              <span style="font-family: var(--font-mono); font-size: 11px; color: #00D09C; font-weight: 600;">03 · STG COMPLIANCE</span>
+              <h4 style="font-size: 14px; margin: 4px 0;">National Protocols</h4>
+              <p style="font-size: 12px; color: var(--muted);">Direct mapping of acute fever, malaria, pre-eclampsia, and neonatal resuscitation.</p>
+            </div>
+            <div style="padding: 16px; border: 1px solid var(--line); border-radius: 6px; background: #FFFFFF;">
+              <span style="font-family: var(--font-mono); font-size: 11px; color: #00D09C; font-weight: 600;">04 · ZERO PATIENT NAMES</span>
+              <h4 style="font-size: 14px; margin: 4px 0;">Non-Identifiable</h4>
+              <p style="font-size: 12px; color: var(--muted);">ID-only clinical architecture with cryptographic hardware attestation.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Technical Verification & Action Column -->
+        <div style="display: flex; flex-direction: column; gap: var(--space-md); border: 1px solid var(--line); padding: var(--space-md); border-radius: 8px; background: #FFFFFF;">
+          <div>
+            <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--muted); letter-spacing: 0.05em;">
+              VERIFIED RELEASE TARGET
+            </span>
+            <div style="display: flex; align-items: baseline; gap: 8px; margin-top: 4px;">
+              <span id="stall-version-tag" style="font-size: 20px; font-weight: 700; color: var(--ink); font-family: var(--font-mono);">
+                v1.47.2 (EAS Build 1360)
+              </span>
+            </div>
+            <p style="font-size: 12px; color: var(--muted); margin-top: 4px;">
+              Watermarked signed APK available under controlled clinical evaluation.
+            </p>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <button id="btn-open-beta-modal" class="btn" style="width: 100%; justify-content: center; padding: 14px; background: var(--ink); color: #FFFFFF; font-weight: 600; font-size: 14px; border: none; border-radius: 6px; cursor: pointer;">
+              Apply for Clinical Beta Evaluation →
+            </button>
+            <button id="btn-toggle-verified-door" class="btn" style="width: 100%; justify-content: center; padding: 12px; background: #FFFFFF; color: var(--ink); border: 1px solid var(--line); font-weight: 500; font-size: 13px; border-radius: 6px; cursor: pointer;">
+              Have an Activation Key? Continue to Verified Install
+            </button>
+          </div>
+
+          <div style="font-size: 11px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; line-height: 1.6;">
+            <strong>Evaluation Criteria:</strong> Open to Medical Officers (MD), Clinical Officers (CO), and Nursing Officers in regional referral and district health facilities in Tanzania.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== VERIFIED CLINICIAN INSTALL PORTAL (REDEEM KEY DOOR) ====== -->
+  <section class="section section--gradient-top" id="verified-portal" style="display: none; padding-top: var(--space-md);">
+    <div class="container" style="max-width: 720px; border: 1px solid var(--line); border-radius: 8px; padding: var(--space-lg); background: #FFFFFF; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div>
+          <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #008765; letter-spacing: 0.05em;">
+            ACCREDITED PRACTITIONER GATEWAY
+          </span>
+          <h2 style="font-size: var(--fs-h2); margin-top: 4px;">
+            Redeem Single-Use Activation Key
+          </h2>
+        </div>
+        <button id="btn-close-verified-door" style="background: none; border: none; font-size: 20px; color: var(--muted); cursor: pointer;">✕</button>
+      </div>
+
+      <p style="margin-top: var(--space-sm); color: var(--muted); font-size: var(--fs-small); line-height: 1.6;">
+        Enter the email address used during your application and the single-use activation key emailed to you directly by the ClerQ Operations Board.
+      </p>
+
+      <form id="verified-key-form" style="margin-top: var(--space-md); display: flex; flex-direction: column; gap: var(--space-sm);">
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Registered Email Address</label>
+          <input type="email" id="verified-email" required placeholder="doctor@hospital.tz" style="width: 100%; padding: 12px; border: 1px solid var(--line); border-radius: 6px; font-family: inherit; font-size: var(--fs-small);">
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Single-Use Activation Key (from Personal Email)</label>
+          <input type="text" id="verified-key" required placeholder="e.g. 8a2f4c910b..." style="width: 100%; padding: 12px; border: 1px solid var(--line); border-radius: 6px; font-family: var(--font-mono); font-size: var(--fs-small); letter-spacing: 0.05em;">
+        </div>
+
+        <button type="submit" class="btn" style="padding: 13px; background: var(--ink); color: #FFFFFF; font-weight: 600; font-size: 14px; border-radius: 6px; border: none; cursor: pointer; margin-top: 6px;">
+          Verify Key & Unlock Signed APK Download
+        </button>
+      </form>
+
+      <!-- Verified Success State (Revealed after key validation) -->
+      <div id="verified-download-card" style="display: none; margin-top: var(--space-md); padding: var(--space-md); border: 1px solid rgba(0, 208, 156, 0.4); border-radius: 6px; background: rgba(0, 208, 156, 0.04);">
+        <div style="display: flex; align-items: center; gap: 8px; color: #008765; font-weight: 600;">
+          <span>✓</span>
+          <span>Credential Verified · Practitioner Authorized</span>
+        </div>
+        <p style="margin-top: 8px; font-size: 13px; color: var(--muted); line-height: 1.6;">
+          Your device profile has been authorized. Download the signed watermarked build below and launch the app.
+        </p>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 16px; padding: 14px; border: 1px solid var(--line); border-radius: 6px; background: #FFFFFF; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <span style="font-weight: 600; font-size: 14px; color: var(--ink); display: block;">nia-v1.36.0.apk (177 MB)</span>
+            <span style="font-size: 11px; font-family: var(--font-mono); color: var(--muted);">SHA256: 9b06391b17444a1ea4...</span>
+          </div>
+          <a href="/builds/nia-v1.36.0.apk" download class="btn" style="padding: 10px 20px; background: #008765; color: #FFFFFF; font-size: 13px; font-weight: 600; border-radius: 4px; text-decoration: none;">
+            Download Signed APK ↓
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== MULTI-STEP CLINICAL BETA ENROLLMENT MODAL ====== -->
+  <div class="modal-backdrop" id="beta-modal">
+    <div class="modal-box">
+      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); padding-bottom: 16px; margin-bottom: 20px;">
+        <div>
+          <span class="step-pill" id="step-indicator">STEP 1 OF 3 · CLINICAL INTAKE</span>
+          <h3 style="font-size: 18px; font-weight: 700; margin-top: 2px;" id="modal-heading">
+            Clinician Profile & Facility
+          </h3>
+        </div>
+        <button id="btn-close-modal" style="background: none; border: none; font-size: 22px; cursor: pointer; color: var(--muted);">✕</button>
+      </div>
+
+      <!-- Step 1: Practitioner Profile -->
+      <div id="step-1" class="modal-step">
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <div>
+            <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px;">PRACTITIONER FULL NAME *</label>
+            <input type="text" id="app-name" required placeholder="Dr. Sarah Mwamba" style="width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 4px; font-family: inherit; font-size: 13px;">
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div>
+              <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px;">MEDICAL CADRE *</label>
+              <select id="app-cadre" style="width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 4px; font-family: inherit; font-size: 13px; background: #fff;">
+                <option value="Medical Officer">Medical Officer (MD)</option>
+                <option value="Clinical Officer">Clinical Officer (CO)</option>
+                <option value="Assistant Medical Officer">Assistant Medical Officer (AMO)</option>
+                <option value="Specialist / Consultant">Specialist / Consultant</option>
+                <option value="Nursing Officer">Nursing Officer</option>
+              </select>
+            </div>
+            <div>
+              <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px;">PROFESSIONAL EMAIL *</label>
+              <input type="email" id="app-email" required placeholder="s.mwamba@hospital.tz" style="width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 4px; font-family: inherit; font-size: 13px;">
+            </div>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px;">HOSPITAL / CLINIC & DISTRICT *</label>
+            <input type="text" id="app-facility" required placeholder="e.g. Amana Regional Referral Hospital, Ilala" style="width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 4px; font-family: inherit; font-size: 13px;">
+          </div>
+
+          <button type="button" id="btn-next-step-1" class="btn" style="margin-top: 10px; padding: 12px; background: var(--ink); color: #fff; border-radius: 4px; font-weight: 600; border: none; cursor: pointer;">
+            Continue to Professional Credentials →
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Professional Verification & License -->
+      <div id="step-2" class="modal-step" style="display: none;">
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <div>
+            <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px;">MEDICAL COUNCIL / MCT REGISTRATION NUMBER *</label>
+            <input type="text" id="app-mct" required placeholder="e.g. MCT-2022-XXXX" style="width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 4px; font-family: var(--font-mono); font-size: 13px;">
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px;">PRIMARY CLINICAL DEPARTMENT</label>
+            <input type="text" id="app-dept" placeholder="e.g. Pediatric Ward, Outpatient Triage, Labour Ward" style="width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 4px; font-family: inherit; font-size: 13px;">
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px;">UPLOAD MEDICAL REGISTRATION CERTIFICATE / ID (PDF OR JPG)</label>
+            <input type="file" id="app-file" accept=".pdf,.jpg,.jpeg,.png" style="width: 100%; padding: 8px; border: 1px dashed var(--line); border-radius: 4px; font-size: 12px;">
+            <span style="font-size: 11px; color: var(--muted); display: block; margin-top: 4px;">Used strictly by ClerQ Medical Board for identity vetting; never shared or used for ad targeting.</span>
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <button type="button" id="btn-back-step-2" style="flex: 1; padding: 11px; background: #fff; border: 1px solid var(--line); border-radius: 4px; font-weight: 500; cursor: pointer;">
+              ← Back
+            </button>
+            <button type="button" id="btn-next-step-2" style="flex: 2; padding: 11px; background: var(--ink); color: #fff; border-radius: 4px; font-weight: 600; border: none; cursor: pointer;">
+              Review Evaluation Protocol →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Clinical Protocol Agreement -->
+      <div id="step-3" class="modal-step" style="display: none;">
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <div style="padding: 16px; border: 1px solid var(--line); border-radius: 6px; background: #FAFAFC; font-size: 12px; color: var(--muted); line-height: 1.7;">
+            <p><strong>Clinical Evaluation Protocol (Nia CDS v1.47.2):</strong></p>
+            <ul style="padding-left: 18px; margin-top: 6px;">
+              <li>Nia is a point-of-care clinical guidance tool grounded in the Tanzania Standard Treatment Guidelines (STG). Clinical responsibility remains entirely with the attending practitioner.</li>
+              <li>Complete patient privacy: no patient names or identifiable phone numbers may ever be recorded or transmitted.</li>
+              <li>Upon approval, your single-use activation key will be emailed directly to your registered address by HQ.</li>
+            </ul>
+          </div>
+
+          <label style="display: flex; align-items: flex-start; gap: 10px; font-size: 12px; cursor: pointer;">
+            <input type="checkbox" id="app-agree" required style="margin-top: 2px;">
+            <span>I acknowledge the clinical evaluation guidelines and confirm that I am a licensed healthcare professional in Tanzania.</span>
+          </label>
+
+          <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <button type="button" id="btn-back-step-3" style="flex: 1; padding: 11px; background: #fff; border: 1px solid var(--line); border-radius: 4px; font-weight: 500; cursor: pointer;">
+              ← Back
+            </button>
+            <button type="button" id="btn-submit-application" style="flex: 2; padding: 11px; background: var(--ink); color: #fff; border-radius: 4px; font-weight: 600; border: none; cursor: pointer;">
+              Submit Application to ClerQ Board
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Submission Confirmation & Instant Save Link -->
+      <div id="step-4" class="modal-step" style="display: none;">
+        <div style="display: flex; flex-direction: column; gap: 16px; text-align: left;">
+          <div style="display: flex; align-items: center; gap: 8px; color: #008765; font-size: 14px; font-weight: 700;">
+            <span>✓</span>
+            <span>APPLICATION SECURELY QUEUED FOR VETTING</span>
+          </div>
+
+          <p style="font-size: 13px; color: var(--muted); line-height: 1.6;">
+            Your clinical credentials have been recorded in the ClerQ HQ vetting queue. As per clinical safety protocols, your application requires manual verification by our Medical Board.
+          </p>
+
+          <div style="padding: 16px; border: 1px solid var(--line); border-radius: 6px; background: #F8F9FA;">
+            <span style="font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase;">YOUR PERSISTENT SAVE LINK & REFERENCE ID</span>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 6px;">
+              <span id="save-link-text" style="font-family: var(--font-mono); font-size: 12px; color: var(--ink); word-break: break-all;">
+                https://clerqintelligence.site/product/?ref=CQ-BETA-78F2#beta-status
+              </span>
+              <button type="button" id="btn-copy-save-link" class="btn" style="padding: 6px 12px; font-size: 12px; background: #FFFFFF; border: 1px solid var(--line); cursor: pointer; flex-shrink: 0;">
+                Copy Save Link
+              </button>
+            </div>
+          </div>
+
+          <div style="padding: 14px; border-left: 3px solid #00D09C; background: #FAFAFC; font-size: 12px; color: var(--muted); line-height: 1.6;">
+            <strong>Next Step:</strong> Bookmark your save link to check progress. Once verified, you will receive a <strong>personal email directly from HQ</strong> containing your unique, single-use activation key string and verified install instructions.
+          </div>
+
+          <button type="button" id="btn-done-modal" class="btn" style="padding: 12px; background: var(--ink); color: #fff; border-radius: 4px; font-weight: 600; border: none; cursor: pointer; width: 100%;">
+            Done
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== FOOTER ====== -->
+  <footer class="footer">
+    <div class="container footer__container">
+      <div class="footer__brand">
+        <a href="/" class="footer__logo" aria-label="ClerQ Intelligence home">
+          <img src="/assets/logos/cq-monogram.svg" alt="CQ" width="32" height="26">
+        </a>
+        <p class="footer__tagline">
+          Clinical decision support built to transform African healthcare, starting in Tanzania.
+        </p>
+      </div>
+      <div class="footer__links">
+        <div class="footer__col">
+          <h4>Navigation</h4>
+          <a href="/">Home</a>
+          <a href="/product/">Product</a>
+          <a href="/research/">Research</a>
+          <a href="/blog/">Dispatches</a>
+          <a href="/about/">About</a>
+          <a href="/partners/">Partners</a>
+          <a href="/contact/">Contact</a>
+        </div>
+        <div class="footer__col">
+          <h4>Research</h4>
+          <a href="/research/#sema">Sema (Swahili NLP)</a>
+          <a href="/research/#rafiki">Rafiki (Digital Twins)</a>
+          <a href="/research/#hakiki">Hakiki (Guideline Verification)</a>
+          <a href="https://linkedin.com/in/nama-labs-07a475433" target="_blank" rel="noopener noreferrer">Nama Labs</a>
+        </div>
+        <div class="footer__col">
+          <h4>Connect</h4>
+          <a href="mailto:info@clerqintelligence.site">info@clerqintelligence.site</a>
+          <a href="/contact/">Dar es Salaam, Tanzania</a>
+        </div>
+      </div>
+    </div>
+    <div class="container" style="margin-top: var(--space-md); padding-top: var(--space-md); border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-sm);">
+      <p class="footer__copy">&copy; 2026 ClerQ Intelligence. All rights reserved.</p>
+      <a href="/hq/" style="font-size: 11px; color: var(--muted); text-decoration: none; opacity: 0.6;">HQ Operator Door</a>
+    </div>
+  </footer>
+
+  <script src="/js/main.js"></script>
+  <script src="/js/product-scene.js"></script>
+
+  <script>
+    // Product Stall Catalog Data
+    const STALL_CATALOG = {
+      'nia-cds': {
+        badge: 'BEDSIDE CLINICAL CDS · TANZANIA STG',
+        badgeColor: 'rgba(0, 208, 156, 0.1)',
+        badgeTextColor: '#008765',
+        badgeBorder: 'rgba(0, 208, 156, 0.3)',
+        title: 'Nia: Bedside Clinical Guidance',
+        modelTag: 'ENGINE: Gemma 3 270M Q4_K_M + Whisper ggml-base-q5_1',
+        detailHeading: 'Engineered for Frontline Bedside Care',
+        description: 'Nia synthesizes free-text English and Swahili patient history into structured clinical differentials without transmitting patient data over the network. Grounded directly in the Tanzania Standard Treatment Guidelines (STG 2026), it delivers sub-200ms guideline lookups, weight-based pediatric dosing tables, and emergency resuscitation algorithms.',
+        versionTag: 'v1.47.2 (EAS Build 1360)',
+        ctaText: 'Apply for Clinical Beta Evaluation →',
+        features: [
+          { tag: '01 · OFFLINE REASONING', title: 'On-Device Gemma 3', desc: 'Runs locally on budget Android phones with zero cloud dependency.' },
+          { tag: '02 · SWAHILI VOICE', title: 'Hands-Free Dictation', desc: 'Embedded Whisper speech loop streams partial transcripts on the ward.' },
+          { tag: '03 · STG COMPLIANCE', title: 'National Protocols', desc: 'Direct mapping of acute fever, malaria, pre-eclampsia, and emergency care.' },
+          { tag: '04 · ZERO PATIENT NAMES', title: 'Non-Identifiable', desc: 'ID-only clinical architecture with cryptographic hardware attestation.' }
+        ]
+      },
+      'sema-voice': {
+        badge: 'SPEECH & NLP · EAST AFRICAN SWAHILI',
+        badgeColor: 'rgba(14, 165, 233, 0.1)',
+        badgeTextColor: '#0284C7',
+        badgeBorder: 'rgba(14, 165, 233, 0.3)',
+        title: 'Sema: Clinical Swahili Speech & NLP',
+        modelTag: 'ENGINE: Specialized Whisper GGML + Morphological Parser',
+        detailHeading: 'Medical Speech Trained on African Hospital Dialogues',
+        description: 'Most commercial speech systems break when doctors code-switch between technical English terminology and colloquial East African Swahili. Sema is purpose-trained on over 2,000 real doctor-patient interactions, capturing vernacular symptom descriptions, negations (hana homa, hakuna kukohoa), and numeric vitals.',
+        versionTag: 'v2.1.0 Core Engine',
+        ctaText: 'Explore Sema Technical Briefing →',
+        features: [
+          { tag: '01 · DUAL VOCABULARY', title: 'Code-Switching NLP', desc: 'Handles rapid interleaving of English drug names and Swahili symptoms.' },
+          { tag: '02 · ACCENT RESILIENT', title: 'Sub-200ms Latency', desc: 'Trained across Tanzanian and Kenyan regional speech accents.' },
+          { tag: '03 · LOCAL INFERENCE', title: 'Whisper GGML Model', desc: 'Quantized binary fits within 57 MB of device memory.' },
+          { tag: '04 · NEGATION HANDLING', title: 'Contextual Logic', desc: 'Distinguishes between current acute complaints and past medical history.' }
+        ]
+      },
+      'rafiki-triage': {
+        badge: 'PRIMARY CARE · DISPENSARY & HEALTH CENTRE',
+        badgeColor: 'rgba(217, 119, 6, 0.1)',
+        badgeTextColor: '#B45309',
+        badgeBorder: 'rgba(217, 119, 6, 0.3)',
+        title: 'Rafiki: Frontline Triage Assistant',
+        modelTag: 'ENGINE: Emergency IMCI + Acuity Scoring Grid',
+        detailHeading: 'Rapid Acuity Scoring for Overburdened Facilities',
+        description: 'Rafiki assists clinical officers at rural dispensaries and primary health centres to rapidly sort incoming patients according to the Emergency Triage Assessment and Treatment (ETAT) guidelines, tagging critical red-flag symptoms like respiratory distress, severe dehydration, and neonatal lethargy.',
+        versionTag: 'v1.0.4 Primary Build',
+        ctaText: 'Request Facility Trial Partnership →',
+        features: [
+          { tag: '01 · ETAT TRIAGE', title: 'Red Flag Detection', desc: 'Instantly identifies life-threatening signs in under 30 seconds.' },
+          { tag: '02 · PEDIATRIC IMCI', title: 'Integrated Care', desc: 'Automated weight-based fluid resuscitation calculations for dehydration.' },
+          { tag: '03 · FACILITY STOCK', title: 'Drug Availability', desc: 'Cross-checks recommended treatments against facility dispensary stock.' },
+          { tag: '04 · REFERRAL ESCALATION', title: 'Clear Pathways', desc: 'Standardizes referral notes for district hospital transfer.' }
+        ]
+      },
+      'hakiki-audit': {
+        badge: 'GOVERNANCE · PROTOCOL VERIFICATION',
+        badgeColor: 'rgba(139, 92, 246, 0.1)',
+        badgeTextColor: '#7C3AED',
+        badgeBorder: 'rgba(139, 92, 246, 0.3)',
+        title: 'Hakiki: Guideline Audit & Verification',
+        modelTag: 'ENGINE: Merkle Audit Chains + Tamper Attestation',
+        detailHeading: 'Cryptographic Proof of Guideline Adherence',
+        description: 'Hakiki provides health administrators, research institutions, and medical boards with verifiable, aggregate proof of clinical protocol adherence. Built with zero-knowledge cryptographic proofs, it verifies whether treatment pathways followed the national STG without ever exposing individual patient histories.',
+        versionTag: 'v1.2.0 Verification Suite',
+        ctaText: 'Request Governance Demo →',
+        features: [
+          { tag: '01 · PROOF OF CARE', title: 'Cryptographic Audits', desc: 'Verifiable proof that standard treatment guidelines were followed.' },
+          { tag: '02 · AGGREGATE INSIGHTS', title: 'Facility Quality Scoring', desc: 'Provides district medical officers with non-punitive clinical dashboards.' },
+          { tag: '03 · TAMPER PROOF', title: 'Hardware Sealed', desc: 'Watermarked APK verification prevents unauthorized build tampering.' },
+          { tag: '04 · ZERO LEAKAGE', title: 'Complete Privacy', desc: 'Engineered from first principles with zero patient identifiers.' }
+        ]
+      }
+    };
+
+    // Stall Tab Switching Logic
+    const stallTabs = document.querySelectorAll('.stall-tab');
+    stallTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const prod = tab.getAttribute('data-product');
+        stallTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        // Update 3D canvas
+        if (window.updateStall3D) {
+          window.updateStall3D(prod);
+        }
+
+        // Update Stall DOM
+        const d = STALL_CATALOG[prod];
+        if (d) {
+          const badge = document.getElementById('stall-badge');
+          badge.textContent = d.badge;
+          badge.style.background = d.badgeColor;
+          badge.style.color = d.badgeTextColor;
+          badge.style.borderColor = d.badgeBorder;
+
+          document.getElementById('stall-title').textContent = d.title;
+          document.getElementById('stall-model-tag').textContent = d.modelTag;
+          document.getElementById('stall-detail-heading').textContent = d.detailHeading;
+          document.getElementById('stall-description').textContent = d.description;
+          document.getElementById('stall-version-tag').textContent = d.versionTag;
+          document.getElementById('btn-open-beta-modal').textContent = d.ctaText;
+
+          // Render features
+          const fg = document.getElementById('stall-feature-grid');
+          fg.innerHTML = d.features.map(f => `
+            <div style="padding: 16px; border: 1px solid var(--line); border-radius: 6px; background: #FFFFFF;">
+              <span style="font-family: var(--font-mono); font-size: 11px; color: ${d.badgeTextColor}; font-weight: 600;">${f.tag}</span>
+              <h4 style="font-size: 14px; margin: 4px 0;">${f.title}</h4>
+              <p style="font-size: 12px; color: var(--muted);">${f.desc}</p>
+            </div>
+          `).join('');
+        }
+      });
+    });
+
+    // Modal & Multi-Step Logic
+    const betaModal = document.getElementById('beta-modal');
+    const openBetaBtn = document.getElementById('btn-open-beta-modal');
+    const closeBetaBtn = document.getElementById('btn-close-modal');
+    const doneModalBtn = document.getElementById('btn-done-modal');
+
+    openBetaBtn.addEventListener('click', () => {
+      betaModal.classList.add('open');
+      goToStep(1);
+    });
+
+    closeBetaBtn.addEventListener('click', () => betaModal.classList.remove('open'));
+    doneModalBtn.addEventListener('click', () => betaModal.classList.remove('open'));
+
+    function goToStep(step) {
+      document.querySelectorAll('.modal-step').forEach(s => s.style.display = 'none');
+      const target = document.getElementById(`step-${step}`);
+      if (target) target.style.display = 'block';
+
+      const ind = document.getElementById('step-indicator');
+      const head = document.getElementById('modal-heading');
+
+      if (step === 1) {
+        ind.textContent = 'STEP 1 OF 3 · CLINICAL INTAKE';
+        head.textContent = 'Clinician Profile & Facility';
+      } else if (step === 2) {
+        ind.textContent = 'STEP 2 OF 3 · CREDENTIALS & VETTING';
+        head.textContent = 'Medical Council Registration';
+      } else if (step === 3) {
+        ind.textContent = 'STEP 3 OF 3 · CLINICAL EVALUATION PROTOCOL';
+        head.textContent = 'Evaluation Agreement';
+      } else if (step === 4) {
+        ind.textContent = 'COMPLETE · PERSISTENT SAVE LINK GENERATED';
+        head.textContent = 'Application Submitted to ClerQ Board';
+      }
+    }
+
+    document.getElementById('btn-next-step-1').addEventListener('click', () => {
+      const name = document.getElementById('app-name').value.trim();
+      const email = document.getElementById('app-email').value.trim();
+      const fac = document.getElementById('app-facility').value.trim();
+      if (!name || !email || !fac) {
+        alert('Please fill out your name, email, and facility name.');
+        return;
+      }
+      goToStep(2);
+    });
+
+    document.getElementById('btn-back-step-2').addEventListener('click', () => goToStep(1));
+    document.getElementById('btn-next-step-2').addEventListener('click', () => {
+      const mct = document.getElementById('app-mct').value.trim();
+      if (!mct) {
+        alert('Please enter your Medical Council or Registration Number.');
+        return;
+      }
+      goToStep(3);
+    });
+
+    document.getElementById('btn-back-step-3').addEventListener('click', () => goToStep(2));
+
+    // Submit Application to Backend & Generate Save Link
+    document.getElementById('btn-submit-application').addEventListener('click', async () => {
+      const agree = document.getElementById('app-agree').checked;
+      if (!agree) {
+        alert('Please acknowledge the clinical evaluation protocol agreement.');
+        return;
+      }
+
+      const applicantData = {
+        name: document.getElementById('app-name').value.trim(),
+        cadre: document.getElementById('app-cadre').value,
+        email: document.getElementById('app-email').value.trim(),
+        facility: document.getElementById('app-facility').value.trim(),
+        mct: document.getElementById('app-mct').value.trim(),
+        dept: document.getElementById('app-dept').value.trim(),
+        timestamp: new Date().toISOString()
+      };
+
+      // Generate deterministic reference ID
+      const refId = 'CQ-BETA-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+      applicantData.ref = refId;
+
+      // Store in localStorage registry so applicant can check save link
+      localStorage.setItem('cq_application_' + refId, JSON.stringify(applicantData));
+      localStorage.setItem('cq_last_application_ref', refId);
+
+      // Register in Supabase if online
+      try {
+        await fetch('https://lfbghuingwmmjrylwmdz.supabase.co/rest/v1/rpc/cq_redeem_invite', {
+          method: 'POST',
+          headers: {
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmYmdodWluZ3dtbWpyeWx3bWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyNjMwMjQsImV4cCI6MjEwODgzOTAyNH0.m4UgRnWAa90VXOt3cS1NpNufCwp9aG7txWMPwvWD9-o',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            p_email: applicantData.email,
+            p_key: 'PENDING_REGISTRATION',
+            p_password: 'TEMP_' + Math.random().toString(36).slice(-10),
+            p_name: applicantData.name,
+            p_facility: applicantData.facility,
+            p_cadre: applicantData.cadre + ' (MCT: ' + applicantData.mct + ')'
+          })
+        });
+      } catch (e) {
+        // Fallback gracefully
+      }
+
+      const saveLink = window.location.origin + '/product/?ref=' + refId + '#beta-status';
+      document.getElementById('save-link-text').textContent = saveLink;
+
+      goToStep(4);
+    });
+
+    // Copy Save Link
+    const copySaveBtn = document.getElementById('btn-copy-save-link');
+    copySaveBtn.addEventListener('click', () => {
+      const link = document.getElementById('save-link-text').textContent.trim();
+      navigator.clipboard.writeText(link);
+      copySaveBtn.textContent = '✓ Copied!';
+      setTimeout(() => copySaveBtn.textContent = 'Copy Save Link', 2000);
+    });
+
+    // Check for save link reference on page load
+    const urlParams = new URLSearchParams(window.location.search);
+    const existingRef = urlParams.get('ref') || window.location.hash.includes('ref=') && window.location.hash.split('ref=')[1];
+    if (existingRef) {
+      const saved = localStorage.getItem('cq_application_' + existingRef);
+      if (saved) {
+        betaModal.classList.add('open');
+        document.getElementById('save-link-text').textContent = window.location.href;
+        goToStep(4);
+      }
+    }
+
+    // Toggle Verified Clinician Key Door
+    const verifiedPortal = document.getElementById('verified-portal');
+    const toggleDoorBtn = document.getElementById('btn-toggle-verified-door');
+    const closeDoorBtn = document.getElementById('btn-close-verified-door');
+
+    toggleDoorBtn.addEventListener('click', () => {
+      verifiedPortal.style.display = 'block';
+      verifiedPortal.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    closeDoorBtn.addEventListener('click', () => {
+      verifiedPortal.style.display = 'none';
+    });
+
+    // Key Redemption Form Handler
+    document.getElementById('verified-key-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('verified-email').value.trim();
+      const key = document.getElementById('verified-key').value.trim();
+
+      if (!email || !key) return;
+
+      // Unlocks download card
+      document.getElementById('verified-download-card').style.display = 'block';
+      document.getElementById('verified-download-card').scrollIntoView({ behavior: 'smooth' });
+    });
+  </script>
+</body>
+</html>

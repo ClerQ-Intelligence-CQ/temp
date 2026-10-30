@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dispatches & Engineering Notes — ClerQ Intelligence</title>
+  <meta name="description" content="Technical notes, research dispatches, and field trial updates on edge clinical AI, Swahili NLP, and offline healthcare delivery in Tanzania.">
+  <link rel="canonical" href="https://clerqintelligence.site/blog/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://clerqintelligence.site/blog/">
+  <meta property="og:title" content="Dispatches — ClerQ Intelligence">
+  <meta property="og:description" content="Technical notes and progress dispatches from ClerQ Intelligence and Nama Labs.">
+  <meta property="og:image" content="https://clerqintelligence.site/assets/logos/clerq-logotype.png">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=3">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png?v=3">
+  <link rel="shortcut icon" href="/favicon.ico?v=3">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+
+  <!-- ====== NAVIGATION ====== -->
+  <nav class="nav" id="main-nav" role="navigation" aria-label="Main navigation">
+    <a href="/" class="nav__logo" aria-label="ClerQ Intelligence home">
+      <img src="/assets/logos/cq-monogram.svg" alt="CQ" width="40" height="32">
+    </a>
+    <div class="nav__links" id="nav-links">
+      <a href="/" class="nav__link" id="nav-home"><span data-en="Home" data-sw="Nyumbani">Home</span></a>
+      <a href="/product/" class="nav__link" id="nav-product"><span data-en="Product" data-sw="Bidhaa">Product</span></a>
+      <a href="/research/" class="nav__link" id="nav-research"><span data-en="Research" data-sw="Utafiti">Research</span></a>
+      <a href="/blog/" class="nav__link nav__link--active" id="nav-blog"><span data-en="Dispatches" data-sw="Makala">Dispatches</span></a>
+      <a href="/about/" class="nav__link" id="nav-about"><span data-en="About" data-sw="Kuhusu">About</span></a>
+      <a href="/partners/" class="nav__link" id="nav-partners"><span data-en="Partners" data-sw="Washirika">Partners</span></a>
+      <a href="/contact/" class="nav__link" id="nav-contact"><span data-en="Contact" data-sw="Wasiliana">Contact</span></a>
+      <button class="nav__lang-toggle" id="lang-toggle" aria-label="Switch language">
+        <span class="nav__lang-label" data-en="SW" data-sw="EN">SW</span>
+      </button>
+    </div>
+    <button class="nav__toggle" id="nav-toggle" aria-label="Open menu" aria-expanded="false">
+      <span class="nav__toggle-bar"></span>
+      <span class="nav__toggle-bar"></span>
+      <span class="nav__toggle-bar"></span>
+    </button>
+  </nav>
+
+  <!-- ====== PAGE HEADER ====== -->
+  <header class="page-header">
+    <div class="container">
+      <span style="font-size: var(--fs-small); font-weight: var(--fw-semibold); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); display: block; margin-bottom: 0.5rem;" data-en="Field Notes & Engineering Updates" data-sw="Makala ya Uhandisi na Utekelezaji">
+        Field Notes & Engineering Updates
+      </span>
+      <h1 data-en="Dispatches from the Field" data-sw="Makala Kutoka Vitani">
+        Dispatches from the Field
+      </h1>
+      <p data-en="Honest, ongoing documentation of what works and what fails when deploying edge AI models and clinical decision support systems into low-connectivity Tanzanian health centres." data-sw="Uandishi wa wazi wa kile kinachofanya kazi na kile kinachoshindwa wakati wa kusambaza mifumo ya kijasusi ya ukingoni katika vituo vya afya vya Tanzania.">
+        Honest, ongoing documentation of what works and what fails when deploying edge AI models and clinical decision support systems into low-connectivity Tanzanian health centres.
+      </p>
+    </div>
+  </header>
+
+  <!-- ====== ARTICLES FEED ====== -->
+  <section class="section section--gradient-top">
+    <div class="container" style="max-width: 780px; display: flex; flex-direction: column; gap: var(--space-xl);">
+
+      <!-- Article 1 -->
+      <article style="border-bottom: 1px solid var(--line); padding-bottom: var(--space-lg);">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: var(--space-xs); font-size: var(--fs-caption); color: var(--muted);">
+          <span>OCTOBER 2026</span>
+          <span>•</span>
+          <span>5 MIN READ</span>
+          <span>•</span>
+          <span style="border: 1px solid var(--line); padding: 2px 8px; border-radius: 4px; text-transform: uppercase;">Low-Resource NLP</span>
+        </div>
+
+        <h2 style="font-size: var(--fs-h2); line-height: 1.3; margin-bottom: var(--space-xs);">
+          The Boring Solution: How We Anchored Clinical Swahili for Gemma on Budget Androids
+        </h2>
+
+        <p style="font-size: var(--fs-body); color: var(--muted); line-height: 1.7; margin-bottom: var(--space-sm);" data-en="Small language models are strong in English and weak in Swahili. When you fine-tune a 2B parameter model on low-resource clinical datasets, it tends to hallucinate plausible-sounding medical terminology that is dangerously wrong. In collaboration with Nama Labs, we built Sema: a morphological anchoring pipeline that strips Swahili prefixes and suffixes before indexing. In document retrieval across the Tanzania Standard Treatment Guidelines, this simple, unglamorous fix elevated accuracy from 54% to 97.4%." data-sw="Mifumo midogo ya lugha ni madhubuti kwa Kiingereza na dhaifu kwa Kiswahili. Tulipoboresha mfumo mdogo, ulikuwa na mwelekeo wa kubuni maneno yasiyo sahihi. Kwa ushirikiano na Nama Labs, tulitengeneza Sema: muundo unaoondoa viambishi kabla ya kuchakata. Hii ilipandisha usahihi wa kurejesha miongozo kutoka 54% hadi 97.4%.">
+          Small language models are strong in English and weak in Swahili. When you fine-tune a 2B parameter model on low-resource clinical datasets, it tends to hallucinate plausible-sounding medical terminology that is dangerously wrong. In collaboration with Nama Labs, we built Sema: a morphological anchoring pipeline that strips Swahili prefixes and suffixes before indexing. In document retrieval across the Tanzania Standard Treatment Guidelines, this simple, unglamorous fix elevated accuracy from 54% to 97.4%.
+        </p>
+
+        <div style="display: flex; gap: var(--space-md); font-size: var(--fs-small); font-weight: var(--fw-medium);">
+          <a href="https://github.com/Nama-ResearchLab/Sema" target="_blank" rel="noopener noreferrer" style="color: var(--ink); text-decoration: underline;">
+            View Sema Repository on GitHub →
+          </a>
+          <a href="/research/#sema" style="color: var(--muted);">
+            Read Research Teaser →
+          </a>
+        </div>
+      </article>
+
+      <!-- Article 2 -->
+      <article style="border-bottom: 1px solid var(--line); padding-bottom: var(--space-lg);">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: var(--space-xs); font-size: var(--fs-caption); color: var(--muted);">
+          <span>OCTOBER 2026</span>
+          <span>•</span>
+          <span>4 MIN READ</span>
+          <span>•</span>
+          <span style="border: 1px solid var(--line); padding: 2px 8px; border-radius: 4px; text-transform: uppercase;">Edge AI & Architecture</span>
+        </div>
+
+        <h2 style="font-size: var(--fs-h2); line-height: 1.3; margin-bottom: var(--space-xs);">
+          Why We Designed for 'Offline Capable' Rather Than 'Cloud Native' in East Africa
+        </h2>
+
+        <p style="font-size: var(--fs-body); color: var(--muted); line-height: 1.7; margin-bottom: var(--space-sm);" data-en="A dispensary doctor at 2am in rural Morogoro does not have 3 seconds to wait for a WebSocket round-trip to an AWS region in Europe. If a digital health tool goes dark when the cellular tower loses power, it isn't an assistant—it's an obstruction. We break down why Nia ships with quantized local model weights (Gemma 3 270M and ggml Whisper), SQLite-based encrypted local storage, and batched asynchronous telemetry that only syncs when connectivity returns." data-sw="Daktari wa zahanati saa nane usiku vijijini hana sekunde 3 za kusubiri mtandao wa Ulaya. Ikiwa zana inazimika mnara wa simu unapokosa umeme, inakuwa kikwazo badala ya msaada. Hapa tunaeleza kwa nini Nia inabeba mfumo mdogo wa Gemma na Whisper ndani ya simu bila kuhitaji mtandao.">
+          A dispensary doctor at 2am in rural Morogoro does not have 3 seconds to wait for a WebSocket round-trip to an AWS region in Europe. If a digital health tool goes dark when the cellular tower loses power, it isn't an assistant—it's an obstruction. We break down why Nia ships with quantized local model weights (Gemma 3 270M and ggml Whisper), SQLite-based encrypted local storage, and batched asynchronous telemetry that only syncs when connectivity returns.
+        </p>
+
+        <div style="display: flex; gap: var(--space-md); font-size: var(--fs-small); font-weight: var(--fw-medium);">
+          <a href="/product/" style="color: var(--ink); text-decoration: underline;">
+            Explore Nia Product Architecture →
+          </a>
+        </div>
+      </article>
+
+      <!-- Article 3 -->
+      <article style="border-bottom: 1px solid var(--line); padding-bottom: var(--space-lg);">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: var(--space-xs); font-size: var(--fs-caption); color: var(--muted);">
+          <span>SEPTEMBER 2026</span>
+          <span>•</span>
+          <span>6 MIN READ</span>
+          <span>•</span>
+          <span style="border: 1px solid var(--line); padding: 2px 8px; border-radius: 4px; text-transform: uppercase;">Clinical Safety</span>
+        </div>
+
+        <h2 style="font-size: var(--fs-h2); line-height: 1.3; margin-bottom: var(--space-xs);">
+          Zero Patient Names: Designing Privacy & Epistemological Safety into CDS
+        </h2>
+
+        <p style="font-size: var(--fs-body); color: var(--muted); line-height: 1.7; margin-bottom: var(--space-sm);" data-en="When building machine learning systems around human health, the first design failure is collecting unnecessary identifying data. Nia enforces an architectural invariant: no patient names, no phone numbers, no national IDs can be recorded in our telemetry tables. The system logs condition codes, age brackets, and whether a clinician agreed or overruled an STG suggestion. This empowers epidemiological insight without compromising the sanctuary of the doctor-patient encounter." data-sw="Wakati wa kujenga mifumo ya kijasusi kwa afya ya binadamu, kosa la kwanza ni kukusanya taarifa binafsi zisizo na lazima. Nia inatekeleza kanuni kuu: hakuna majina ya wagonjwa au namba za simu zinazohifadhiwa. Mfumo unarekodi tu makadirio ya umri na kama daktari alikubali au alikataa ushauri.">
+          When building machine learning systems around human health, the first design failure is collecting unnecessary identifying data. Nia enforces an architectural invariant: no patient names, no phone numbers, no national IDs can be recorded in our telemetry tables. The system logs condition codes, age brackets, and whether a clinician agreed or overruled an STG suggestion. This empowers epidemiological insight without compromising the sanctuary of the doctor-patient encounter.
+        </p>
+
+        <div style="display: flex; gap: var(--space-md); font-size: var(--fs-small); font-weight: var(--fw-medium);">
+          <a href="/about/" style="color: var(--ink); text-decoration: underline;">
+            Learn More About Our Safety Principles →
+          </a>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ====== FOOTER ====== -->
+  <footer class="footer">
+    <div class="container footer__container">
+      <div class="footer__brand">
+        <a href="/" class="footer__logo" aria-label="ClerQ Intelligence home">
+          <img src="/assets/logos/cq-monogram.svg" alt="CQ" width="32" height="26">
+        </a>
+        <p class="footer__tagline" data-en="Clinical decision support built to transform African healthcare, starting in Tanzania." data-sw="Msaada wa maamuzi ya kitabibu uliojengwa kubadilisha huduma ya afya ya Afrika, kuanzia Tanzania.">
+          Clinical decision support built to transform African healthcare, starting in Tanzania.
+        </p>
+      </div>
+      <div class="footer__links">
+        <div class="footer__col">
+          <h4 data-en="Navigation" data-sw="Urambazaji">Navigation</h4>
+          <a href="/"><span data-en="Home" data-sw="Nyumbani">Home</span></a>
+          <a href="/product/"><span data-en="Product" data-sw="Bidhaa">Product</span></a>
+          <a href="/research/"><span data-en="Research" data-sw="Utafiti">Research</span></a>
+          <a href="/blog/"><span data-en="Dispatches" data-sw="Makala">Dispatches</span></a>
+          <a href="/about/"><span data-en="About" data-sw="Kuhusu">About</span></a>
+          <a href="/partners/"><span data-en="Partners" data-sw="Washirika">Partners</span></a>
+          <a href="/contact/"><span data-en="Contact" data-sw="Wasiliana">Contact</span></a>
+        </div>
+        <div class="footer__col">
+          <h4 data-en="Research" data-sw="Utafiti">Research</h4>
+          <a href="/research/#sema">Sema (Swahili NLP)</a>
+          <a href="/research/#rafiki">Rafiki (Digital Twins)</a>
+          <a href="https://linkedin.com/in/nama-labs-07a475433" target="_blank" rel="noopener noreferrer">Nama Labs</a>
+        </div>
+        <div class="footer__col">
+          <h4 data-en="Connect" data-sw="Ungana">Connect</h4>
+          <a href="https://www.linkedin.com/company/clerq-intelligence" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a href="mailto:hq@clerqintelligence.site">hq@clerqintelligence.site</a>
+          <!-- Hidden HQ Door -->
+          <a href="/hq/" style="opacity: 0.15; font-size: 11px; margin-top: 1rem;" title="Internal Operations">CQ // HQ Door</a>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p>&copy; 2026 ClerQ Intelligence. <span data-en="Clinical guidance tool. Final diagnostic responsibility remains with the attending clinician." data-sw="Zana ya mwongozo wa kitabibu. Wajibu wa mwisho wa uchunguzi unabaki kwa daktari mhusika.">Clinical guidance tool. Final diagnostic responsibility remains with the attending clinician.</span></p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/main.js"></script>
+</body>
+</html>

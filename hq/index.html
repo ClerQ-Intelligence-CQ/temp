@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CQ // HQ Operations Gateway</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=3">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png?v=3">
+  <link rel="shortcut icon" href="/favicon.ico?v=3">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+  <link rel="stylesheet" href="/css/main.css">
+  <style>
+    body {
+      background: #FFFFFF;
+      color: #0A0A0A;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      font-family: var(--font-primary);
+      box-sizing: border-box;
+    }
+    .hq-wrapper {
+      width: 100%;
+      max-width: 500px;
+      border: 1px solid #E5E5E5;
+      background: #FAFAFC;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+      position: relative;
+    }
+    .terminal-box {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #52525B;
+      line-height: 1.7;
+      background: #FFFFFF;
+      padding: 16px;
+      border: 1px solid #E5E5E5;
+      border-radius: 6px;
+      margin: 20px 0;
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .status-online {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      color: #059669;
+    }
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .portal-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 14px;
+      background: #0A0A0A;
+      color: #FFFFFF;
+      font-weight: 600;
+      font-size: 14px;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: all 0.15s ease;
+      cursor: pointer;
+      border: none;
+      box-sizing: border-box;
+    }
+    .portal-btn:hover {
+      background: #27272A;
+      transform: translateY(-1px);
+    }
+    .portal-btn--secondary {
+      background: #FFFFFF;
+      color: #0A0A0A;
+      border: 1px solid #D4D4D8;
+    }
+    .portal-btn--secondary:hover {
+      background: #F4F4F5;
+    }
+    .iframe-container {
+      display: none;
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1000;
+      background: #FFFFFF;
+    }
+    .iframe-container iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    .iframe-close-btn {
+      position: fixed;
+      top: 14px;
+      right: 20px;
+      z-index: 1001;
+      padding: 8px 16px;
+      background: #0A0A0A;
+      color: #FFFFFF;
+      border: 1px solid #27272A;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hq-wrapper" id="gateway-card">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <img src="/assets/logos/cq-monogram.svg" alt="CQ" width="36" height="28">
+        <div>
+          <span style="font-size: 15px; font-weight: 700; letter-spacing: 0.02em; display: block;">CLERQ HQ</span>
+          <span style="font-size: 11px; color: var(--muted); text-transform: uppercase;">Operations Console</span>
+        </div>
+      </div>
+      <div class="status-badge status-online" id="status-pill">
+        <span class="status-dot"></span>
+        <span id="status-text">ONLINE (PORT 3000)</span>
+      </div>
+    </div>
+
+    <p style="font-size: 13px; color: #52525B; line-height: 1.6; margin-bottom: 12px;">
+      Restricted operator console for Nia CDS v1.47.2 telemetry, Beta Studio credential vetting, and remote kill switch control.
+    </p>
+
+    <div class="terminal-box">
+      <div>&gt; AUTH_TARGET: lfbghuingwmmjrylwmdz.supabase.co</div>
+      <div>&gt; SECURITY: SECURITY_DEFINER RPCs</div>
+      <div>&gt; CONSOLE_PORT: http://localhost:3000</div>
+      <div>&gt; MASTER_ACCOUNT: clerqafrica@gmail.com</div>
+      <div>&gt; STUB_STATUS: ZERO_STUBS (PURE_LIVE_DATA)</div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <a href="http://localhost:3000" id="portal-link" class="portal-btn">
+        Enter ClerQ HQ Console (localhost:3000) →
+      </a>
+      <button type="button" id="embed-btn" class="portal-btn portal-btn--secondary">
+        Launch ClerQ HQ Inside This Window
+      </button>
+    </div>
+
+    <div style="margin-top: 24px; text-align: center;">
+      <a href="/" style="font-size: 12px; color: var(--muted); text-decoration: none;">← Return to ClerQ Intelligence Website</a>
+    </div>
+  </div>
+
+  <div class="iframe-container" id="iframe-view">
+    <button class="iframe-close-btn" id="close-iframe">✕ Exit Console to Website</button>
+    <iframe src="http://localhost:3000" id="hq-frame" title="ClerQ HQ Console"></iframe>
+  </div>
+
+  <script>
+    const embedBtn = document.getElementById('embed-btn');
+    const iframeView = document.getElementById('iframe-view');
+    const closeBtn = document.getElementById('close-iframe');
+
+    embedBtn.addEventListener('click', () => {
+      iframeView.style.display = 'block';
+    });
+
+    closeBtn.addEventListener('click', () => {
+      iframeView.style.display = 'none';
+    });
+
+    // Check service health
+    fetch('http://localhost:3000', { mode: 'no-cors' })
+      .then(() => {
+        document.getElementById('status-text').textContent = 'ONLINE (PORT 3000)';
+      })
+      .catch(() => {
+        document.getElementById('status-text').textContent = 'CHECKING SERVICE...';
+      });
+  </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 90" width="340" height="90" fill="none">
+  <style>
+    .hakiki-text { font-family: 'General Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 700; font-size: 42px; fill: #0A0A0A; letter-spacing: -0.02em; }
+    .ecg-line { stroke: #0A0A0A; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .lens { stroke: #0A0A0A; stroke-width: 3.5; fill: none; }
+  </style>
+  
+  <!-- Hakiki Wordmark -->
+  <text x="15" y="58" class="hakiki-text">Hakiki</text>
+  
+  <!-- Continuous ECG wave pulse line running beneath / through -->
+  <path class="ecg-line" d="M145 52 L175 52 L182 35 L190 68 L198 24 L206 58 L212 47 L218 52 L245 52"/>
+  
+  <!-- Magnifying glass inspection lens over trailing 'ki' -->
+  <circle cx="270" cy="46" r="16" class="lens"/>
+  <line x1="282" y1="58" x2="298" y2="74" stroke="#0A0A0A" stroke-width="4" stroke-linecap="round"/>
+  <!-- Focus spark in lens -->
+  <circle cx="266" cy="42" r="3" fill="#00D09C"/>
+</svg>
