@@ -22,20 +22,33 @@
    - SVG logos for ClerQ Intelligence, Sema, Rafiki, and Hakiki.
 3. **Database Schema & Pipeline (`schema/`):**
    - `0001_cq_core.sql` through `0004_beta_pipeline.sql`: Full PostgreSQL DDL and security-definer RPCs for public application submission (`cq_submit_beta_application`), status verification (`cq_check_beta_status`), single-use key validation (`cq_verify_beta_key`), and HQ operator vetting (`cq_hq_list_applications`, `cq_hq_review_application`).
-4. **Handoff Specifications:**
+4. **ClerQ HQ Console (`hq-console/`):**
+   - React 18 + Vite + TypeScript application for the ClerQ HQ Operations Console.
+   - `pages/Clinicians.tsx`: Live Credential Verification Queue for incoming applicants, dossier inspection, and cryptographic key issuance.
+   - `pages/Overview.tsx`: Real-time system telemetry and live RPC analytics.
+   - `pages/ProductStudio.tsx`: Remote control gate for Nia model weights and remote feature locking.
+   - `pages/RuleGraph.tsx`: 21 live Tanzanian STG clinical syndrome rule graphs.
+   - `pages/Notices.tsx`: Point-of-care clinical advisory broadcast network.
+5. **Handoff Specifications:**
    - [HANDOFF_INSTRUCTIONS.md](HANDOFF_INSTRUCTIONS.md): In-depth guide detailing user design guidelines, the Dieter Rams white minimalism mandate, 3D product stall specifications, and the end-to-end beta sequence diagram.
 
 ---
 
 ## Quick Start (Running Locally)
 
+### 1. Website
 ```bash
-# Serve website
 python3 -m http.server 8085
+# Open http://localhost:8085/
+```
 
-# Open in browser:
-http://localhost:8085/
-http://localhost:8085/product/
+### 2. ClerQ HQ Console
+```bash
+cd hq-console/
+npm install
+npm run dev -- --port 3000
+# Open http://localhost:3000/
+# Master credentials: clerqafrica@gmail.com / curamqualitas
 ```
 
 ---

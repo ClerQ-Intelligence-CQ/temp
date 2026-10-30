@@ -65,6 +65,11 @@ This repository contains the complete website source code, design assets, and pa
 │   ├── favicons/                # Circle-framed CQ favicons (SVG, ICO, 16, 32, 48, 192, 512)
 │   ├── logos/                   # Official CQ monogram vectors and ClerQ logotypes
 │   └── images/                  # High-resolution clinical and architectural photography
+├── hq-console/                  # ClerQ HQ Console (React 18 + Vite + TS)
+│   ├── src/pages/               # Clinicians.tsx (Vetting Queue), Overview.tsx, Studio, etc.
+│   ├── src/lib/                 # api.ts (Supabase RPC callers), auth.tsx
+│   └── package.json             # Dev dependencies and scripts
+├── schema/                      # PostgreSQL DDL migrations (0001 through 0004)
 └── docs/                        # Specifications, copy decks, and technical manuscripts
 ```
 
