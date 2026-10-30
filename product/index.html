@@ -302,9 +302,10 @@
           <input type="text" id="verified-key" required placeholder="e.g. 8a2f4c910b..." style="width: 100%; padding: 12px; border: 1px solid var(--line); border-radius: 6px; font-family: var(--font-mono); font-size: var(--fs-small); letter-spacing: 0.05em;">
         </div>
 
-        <button type="submit" class="btn" style="padding: 13px; background: var(--ink); color: #FFFFFF; font-weight: 600; font-size: 14px; border-radius: 6px; border: none; cursor: pointer; margin-top: 6px;">
+        <button type="submit" id="btn-verify-key-submit" class="btn" style="padding: 13px; background: var(--ink); color: #FFFFFF; font-weight: 600; font-size: 14px; border-radius: 6px; border: none; cursor: pointer; margin-top: 6px;">
           Verify Key & Unlock Signed APK Download
         </button>
+        <div id="verified-error-msg" style="display: none; margin-top: 10px; padding: 10px 14px; border-radius: 6px; background: #FEF2F2; border: 1px solid #FCA5A5; color: #991B1B; font-size: 13px;"></div>
       </form>
 
       <!-- Verified Success State (Revealed after key validation) -->
@@ -460,6 +461,8 @@
               </button>
             </div>
           </div>
+
+          <div id="step-4-status-info"></div>
 
           <div style="padding: 14px; border-left: 3px solid #00D09C; background: #FAFAFC; font-size: 12px; color: var(--muted); line-height: 1.6;">
             <strong>Next Step:</strong> Bookmark your save link to check progress. Once verified, you will receive a <strong>personal email directly from HQ</strong> containing your unique, single-use activation key string and verified install instructions.
@@ -715,37 +718,65 @@
         timestamp: new Date().toISOString()
       };
 
-      // Generate deterministic reference ID
-      const refId = 'CQ-BETA-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-      applicantData.ref = refId;
+      const submitBtn = document.getElementById('btn-submit-application');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting Application to ClerQ Board...';
 
-      // Store in localStorage registry so applicant can check save link
-      localStorage.setItem('cq_application_' + refId, JSON.stringify(applicantData));
-      localStorage.setItem('cq_last_application_ref', refId);
+      let refCode = 'CQ-BETA-' + Math.random().toString(36).substring(2, 8).toUpperCase();
 
-      // Register in Supabase if online
       try {
-        await fetch('https://lfbghuingwmmjrylwmdz.supabase.co/rest/v1/rpc/cq_redeem_invite', {
+        const resp = await fetch('https://lfbghuingwmmjrylwmdz.supabase.co/rest/v1/rpc/cq_submit_beta_application', {
           method: 'POST',
           headers: {
             'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmYmdodWluZ3dtbWpyeWx3bWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyNjMwMjQsImV4cCI6MjEwODgzOTAyNH0.m4UgRnWAa90VXOt3cS1NpNufCwp9aG7txWMPwvWD9-o',
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            p_email: applicantData.email,
-            p_key: 'PENDING_REGISTRATION',
-            p_password: 'TEMP_' + Math.random().toString(36).slice(-10),
             p_name: applicantData.name,
+            p_email: applicantData.email,
+            p_cadre: applicantData.cadre,
             p_facility: applicantData.facility,
-            p_cadre: applicantData.cadre + ' (MCT: ' + applicantData.mct + ')'
+            p_mct: applicantData.mct,
+            p_dept: applicantData.dept || null
           })
         });
+        const res = await resp.json();
+        if (res && res.ok && res.ref_code) {
+          refCode = res.ref_code;
+        }
       } catch (e) {
-        // Fallback gracefully
+        console.warn('Backend submission error:', e);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Application & Generate Save Link →';
       }
 
-      const saveLink = window.location.origin + '/product/?ref=' + refId + '#beta-status';
+      applicantData.ref = refCode;
+      localStorage.setItem('cq_application_' + refCode, JSON.stringify(applicantData));
+      localStorage.setItem('cq_last_application_ref', refCode);
+
+      const saveLink = window.location.origin + '/product/?ref=' + refCode + '#beta-status';
       document.getElementById('save-link-text').textContent = saveLink;
+
+      const statusEl = document.getElementById('step-4-status-info');
+      if (statusEl) {
+        statusEl.innerHTML = `
+          <div style="padding: 12px; border: 1px solid var(--line); border-radius: 6px; background: #FAFAFA; font-size: 13px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+              <span style="color:var(--muted)">Applicant:</span>
+              <strong>${applicantData.name}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+              <span style="color:var(--muted)">Reference:</span>
+              <span style="font-family:var(--font-mono); font-weight:600;">${refCode}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span style="color:var(--muted)">Status:</span>
+              <span style="font-weight:600; color: #B45309; text-transform:uppercase;">Awaiting Board Vetting</span>
+            </div>
+          </div>
+        `;
+      }
 
       goToStep(4);
     });
@@ -759,15 +790,78 @@
       setTimeout(() => copySaveBtn.textContent = 'Copy Save Link', 2000);
     });
 
+    // Live Application Status Checker via Supabase
+    async function checkStatusByRef(ref) {
+      if (!ref) return;
+      try {
+        const resp = await fetch('https://lfbghuingwmmjrylwmdz.supabase.co/rest/v1/rpc/cq_check_beta_status', {
+          method: 'POST',
+          headers: {
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmYmdodWluZ3dtbWpyeWx3bWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyNjMwMjQsImV4cCI6MjEwODgzOTAyNH0.m4UgRnWAa90VXOt3cS1NpNufCwp9aG7txWMPwvWD9-o',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ p_ref: ref })
+        });
+        const d = await resp.json();
+        if (d && d.ok) {
+          betaModal.classList.add('open');
+          goToStep(4);
+          document.getElementById('save-link-text').textContent = window.location.origin + '/product/?ref=' + ref + '#beta-status';
+          const infoEl = document.getElementById('step-4-status-info');
+          if (infoEl) {
+            infoEl.innerHTML = `
+              <div style="padding: 14px; border: 1px solid var(--line); border-radius: 6px; background: #FAFAFA; font-size: 13px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                  <span style="color:var(--muted)">Practitioner:</span>
+                  <strong>${d.name}</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                  <span style="color:var(--muted)">Facility:</span>
+                  <span>${d.facility}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                  <span style="color:var(--muted)">Cadre:</span>
+                  <span>${d.cadre}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; padding-top:6px; border-top:1px solid var(--line);">
+                  <span style="color:var(--muted)">Board Vetting Status:</span>
+                  <span style="font-weight:700; color: ${d.status === 'approved' ? '#008765' : d.status === 'rejected' ? '#DC2626' : '#B45309'}; text-transform:uppercase;">
+                    ${d.status === 'approved' ? '✓ Approved (Check Email For Key)' : d.status === 'rejected' ? 'Application Declined' : 'Under Board Review'}
+                  </span>
+                </div>
+              </div>
+            `;
+          }
+        }
+      } catch (e) {
+        console.warn('Status check query error:', e);
+      }
+    }
+
     // Check for save link reference on page load
     const urlParams = new URLSearchParams(window.location.search);
-    const existingRef = urlParams.get('ref') || window.location.hash.includes('ref=') && window.location.hash.split('ref=')[1];
+    let existingRef = urlParams.get('ref');
+    if (!existingRef && window.location.hash.includes('ref=')) {
+      existingRef = window.location.hash.split('ref=')[1]?.split('&')[0];
+    }
     if (existingRef) {
-      const saved = localStorage.getItem('cq_application_' + existingRef);
-      if (saved) {
-        betaModal.classList.add('open');
-        document.getElementById('save-link-text').textContent = window.location.href;
-        goToStep(4);
+      checkStatusByRef(existingRef);
+    }
+
+    // Check for verified key in query or hash (e.g. #verified?key=...)
+    let incomingKey = urlParams.get('key');
+    if (!incomingKey && window.location.hash.includes('key=')) {
+      incomingKey = window.location.hash.split('key=')[1]?.split('&')[0];
+    }
+    if (incomingKey || window.location.hash.includes('#verified')) {
+      const verifiedPortal = document.getElementById('verified-portal');
+      if (verifiedPortal) {
+        verifiedPortal.style.display = 'block';
+        if (incomingKey) {
+          const keyInput = document.getElementById('verified-key');
+          if (keyInput) keyInput.value = incomingKey;
+        }
+        verifiedPortal.scrollIntoView({ behavior: 'smooth' });
       }
     }
 
@@ -785,17 +879,55 @@
       verifiedPortal.style.display = 'none';
     });
 
-    // Key Redemption Form Handler
-    document.getElementById('verified-key-form').addEventListener('submit', (e) => {
+    // Key Redemption Form Handler calling cq_verify_beta_key
+    document.getElementById('verified-key-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('verified-email').value.trim();
       const key = document.getElementById('verified-key').value.trim();
+      const errEl = document.getElementById('verified-error-msg');
+      const submitBtn = document.getElementById('btn-verify-key-submit');
 
       if (!email || !key) return;
 
-      // Unlocks download card
-      document.getElementById('verified-download-card').style.display = 'block';
-      document.getElementById('verified-download-card').scrollIntoView({ behavior: 'smooth' });
+      if (errEl) errEl.style.display = 'none';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Authenticating Key with ClerQ Registry...';
+      }
+
+      try {
+        const resp = await fetch('https://lfbghuingwmmjrylwmdz.supabase.co/rest/v1/rpc/cq_verify_beta_key', {
+          method: 'POST',
+          headers: {
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmYmdodWluZ3dtbWpyeWx3bWR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyNjMwMjQsImV4cCI6MjEwODgzOTAyNH0.m4UgRnWAa90VXOt3cS1NpNufCwp9aG7txWMPwvWD9-o',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ p_email: email, p_key: key })
+        });
+        const res = await resp.json();
+        if (res && res.ok) {
+          const downloadCard = document.getElementById('verified-download-card');
+          downloadCard.style.display = 'block';
+          downloadCard.scrollIntoView({ behavior: 'smooth' });
+        } else {
+          if (errEl) {
+            errEl.textContent = 'Authentication failed: Single-use activation key is invalid, already redeemed, or email does not match. Please verify the code in your personal dispatch email from HQ.';
+            errEl.style.display = 'block';
+          } else {
+            alert('Invalid or expired activation key for this email address.');
+          }
+        }
+      } catch (err) {
+        if (errEl) {
+          errEl.textContent = 'Network communication error. Please check your connection and try again.';
+          errEl.style.display = 'block';
+        }
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Verify Key & Unlock Signed APK Download';
+        }
+      }
     });
   </script>
 </body>

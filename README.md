@@ -1,37 +1,55 @@
-# ClerQ Intelligence — Website Staging & Specification Handoff
+# ClerQ Intelligence — Website Staging & Handoff Repository
 
-Public handoff and staging repository for the **ClerQ Intelligence** web ecosystem:
-
-- **Live Production Domain:** `https://clerqintelligence.site`
-- **Handoff & Architecture Specs:** See [`HANDOFF_INSTRUCTIONS.md`](./HANDOFF_INSTRUCTIONS.md)
-- **Clinical Decision Support App:** Nia (ClerQ CDS v1.47.2, build 1360)
-- **Operations Console:** ClerQ HQ (React 18 + Vite + Supabase RPCs)
+> **Repository:** `ClerQ-Intelligence-CQ/temp`  
+> **Production Target:** `https://clerqintelligence.site`  
+> **Primary Purpose:** Handoff brief, website files, 3D WebGL assets, database schemas, and end-to-end beta pipeline documentation for design iteration and aesthetic overhaul.
 
 ---
 
-## Repository Contents
+## What is in This Repository
 
-| Directory / File | Description |
-|---|---|
-| [`HANDOFF_INSTRUCTIONS.md`](./HANDOFF_INSTRUCTIONS.md) | **Read First:** Comprehensive brief, user rules, aesthetic guidelines, and workflow specifications. |
-| [`index.html`](./index.html) | Homepage with Three.js geometric hero, architecture pillars, and bilingual EN/SW toggle. |
-| [`product/index.html`](./product/index.html) | Interactive 3D WebGL Product Stall, multi-product switcher, and Clinical Beta intake modal. |
-| [`blog/index.html`](./blog/index.html) | Engineering dispatches and articles on on-device LLMs, Swahili NLP, and non-identifiable privacy. |
-| [`research/index.html`](./research/index.html) | Technical briefings on Sema Speech Engine, Rafiki Triage, and Hakiki Verification. |
-| [`about/index.html`](./about/index.html) | Company background, medical leadership, and engineering partnership with Nama Labs. |
-| [`partners/index.html`](./partners/index.html) | Healthcare network collaborations across Tanzania regional referral and district hospitals. |
-| [`contact/index.html`](./contact/index.html) | Direct inquiry form and Dar es Salaam HQ facility details. |
-| [`hq/index.html`](./hq/index.html) | Hidden operator doorway to ClerQ HQ Console on port 3000. |
-| [`css/main.css`](./css/main.css) | Master Ramsian monochrome design tokens and responsive layouts. |
-| [`js/`](./js/) | Three.js scenes (`product-scene.js`, `principles-scene.js`, `hero-scene.js`) and navigation logic (`main.js`). |
-| [`assets/`](./assets/) | Vector logos, circle-framed CQ favicons, and photography assets. |
+1. **Complete Website Source (`HTML5 / Vanilla CSS / Vanilla JS`):**
+   - Pure high-performance static website (zero build tool requirement, runs via `python3 -m http.server 8085`).
+   - `index.html`: Homepage with Three.js 3D hero wireframe and 3D Horizon principles model.
+   - `product/index.html`: 3D WebGL Product Stall (Nia CDS, Sema Voice, Rafiki Triage, Hakiki Verification), 3-step clinical beta enrollment intake modal, persistent save link generation, and verified APK download portal.
+   - `research/index.html`: Deep-dive briefings on Swahili NLP (Sema), Frontline Triage (Rafiki), and Protocol Verification (Hakiki).
+   - `about/index.html`: Mission, executive board, clinical philosophy, and partnership with Nama Labs.
+   - `blog/index.html`: Engineering dispatches and clinical whitepapers.
+   - `contact/index.html`: Facility inquiries and Dar es Salaam HQ contacts.
+   - `hq/index.html`: Surgical white doorway to ClerQ HQ Operations Console.
+2. **Design Assets & Favicons:**
+   - Vector CQ monogram in an optical circular frame (`favicon.svg?v=3`, multi-resolution PNGs, and `favicon.ico`).
+   - SVG logos for ClerQ Intelligence, Sema, Rafiki, and Hakiki.
+3. **Database Schema & Pipeline (`schema/`):**
+   - `0001_cq_core.sql` through `0004_beta_pipeline.sql`: Full PostgreSQL DDL and security-definer RPCs for public application submission (`cq_submit_beta_application`), status verification (`cq_check_beta_status`), single-use key validation (`cq_verify_beta_key`), and HQ operator vetting (`cq_hq_list_applications`, `cq_hq_review_application`).
+4. **Handoff Specifications:**
+   - [HANDOFF_INSTRUCTIONS.md](HANDOFF_INSTRUCTIONS.md): In-depth guide detailing user design guidelines, the Dieter Rams white minimalism mandate, 3D product stall specifications, and the end-to-end beta sequence diagram.
 
 ---
 
-## Core Aesthetic & Implementation Rules
+## Quick Start (Running Locally)
 
-1. **Dominant Theme:** Crisp, pure white (`#FFFFFF`) with subtle off-white backgrounds (`#F8F9FA`) and hairline borders (`#E5E5E5`). **Never invert into dark mode.**
-2. **Icons & Glyphs:** Vector icons only (Lucide/SVG). **Zero emojis anywhere.**
-3. **Typography:** `General Sans` (Fontshare) and `JetBrains Mono` for telemetry and version identifiers.
-4. **Data Integrity:** Absolutely **no fake stubs or mock arrays**. Pure live database rows from Supabase or honest empty states.
-5. **Favicon:** The CQ monogram must always appear inside a **circular frame** on browser tabs (`favicon.svg?v=3`).
+```bash
+# Serve website
+python3 -m http.server 8085
+
+# Open in browser:
+http://localhost:8085/
+http://localhost:8085/product/
+```
+
+---
+
+## Critical User Rules & Design Constraints
+
+1. **Dominant Theme MUST BE PURE SURGICAL WHITE (`#FFFFFF`), NOT DARK:**
+   - The user explicitly corrected: *"the dominant theme is white not dark brooo"*.
+   - Never invert into dark mode. Maintain pure Ramsian white backgrounds, subtle borders, and crisp black typography.
+2. **ZERO EMOJIS ANYWHERE:**
+   - Strictly forbidden in UI, headings, buttons, and copy. Use clean geometric SVGs or Lucide icons.
+3. **ZERO FAKE DATA / STUBS:**
+   - Real database rows or honest empty states only. Never hardcode mock numbers or fake arrays.
+4. **FAVICON IN CIRCULAR FRAME:**
+   - Must use the circle-framed CQ monogram with cache-busting query strings on all `<link rel="icon">` tags.
+5. **COPYWRITING:**
+   - "Offline-capable" (not "offline-native"). Assistive bedside guidance grounded in Tanzania STG 2026.

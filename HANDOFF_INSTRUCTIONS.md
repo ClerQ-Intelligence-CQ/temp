@@ -142,8 +142,27 @@ sequenceDiagram
 
 ---
 
-## 6. What the Next Agent Must Polish
-1. **Visual Polish:** Ensure the 3D WebGL product stall feels state-of-the-art on both desktop and mobile viewports.
-2. **Database Integration:** Ensure the application form on `/product/` writes directly to Supabase via an unauthenticated RPC (`cq_submit_beta_application`) so submissions appear instantly in HQ.
-3. **Key Verification API:** Hook the "Continue to Verified" portal to live `cq_invites` verification so only valid keys unlock the APK download.
-4. **Bilingual Copy:** Ensure all Swahili translations (`data-sw`) across the product stall and modal match authentic Tanzanian clinical phrasing.
+## 6. Implementation Status & Aesthetic Delegation Scope
+
+### Completed Infrastructure:
+1. **Live Database Migration Applied:**
+   - Migration `schema/0004_beta_pipeline.sql` is deployed to Supabase project `lfbghuingwmmjrylwmdz`.
+   - RPCs `cq_submit_beta_application`, `cq_check_beta_status`, `cq_verify_beta_key`, `cq_hq_list_applications`, and `cq_hq_review_application` are fully active.
+2. **Product Page Pipeline Wired:**
+   - `product/index.html` submits applications directly to `cq_submit_beta_application`, generates deterministic `CQ-BETA-XXXXXX` references, and produces live save links.
+   - The verified portal validates single-use activation keys via `cq_verify_beta_key`.
+3. **ClerQ HQ Console Wired:**
+   - `project/web/src/pages/Clinicians.tsx` queries the incoming applications queue via `cq_hq_list_applications`, allows operators to review the dossier (MCT number, cadre, facility), and on approval executes `cq_hq_review_application` which issues the cryptographic OTP key and generates the Personal Email Dispatch Package.
+4. **Branding & Monogram:**
+   - Circular-framed CQ monogram favicon (`favicon.svg?v=3`, `favicon.ico`, PNG variants) deployed across all website pages and web app.
+
+### Scope Delegated to Next Agent:
+1. **Visual & Aesthetic Overhaul:**
+   - Elevate the visual impression of the website to feel truly world-class, state-of-the-art, and prestigious.
+   - Refine typography scale, spacing rhythms, and micro-interactions while strictly honoring the **pure surgical white (`#FFFFFF`)** palette.
+   - Polish the 3D WebGL product stall canvas: ensure smooth shader transitions, fluid mouse parallax, and beautiful geometric representations of the 4 clinical products.
+2. **Mobile Viewport Optimization:**
+   - Verify layout responsiveness on narrow mobile viewports (375px–430px) for the multi-step intake modal, 3D viewport canvas, and horizontal stall tabs.
+3. **Bilingual Copy Review:**
+   - Audit Swahili clinical copy across all pages to ensure phrasing aligns with authentic East African medical terminology.
+
